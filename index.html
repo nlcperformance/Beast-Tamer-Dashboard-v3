@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OP: BEAST TAMER // SENTINEL DASHBOARD v3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #050505;
+            color: #e5e5e5;
+        }
+
+        /* Tactical Grid Lines */
+        .tactical-border {
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .tactical-border::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px;
+            width: 10px; height: 10px;
+            border-top: 2px solid #10b981;
+            border-left: 2px solid #10b981;
+        }
+
+        .tactical-border::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 10px; height: 10px;
+            border-bottom: 2px solid #10b981;
+            border-right: 2px solid #10b981;
+        }
+
+        .phase-btn.active {
+            background-color: #10b981;
+            color: #000;
+            border-color: #10b981;
+        }
+        
+        .month-btn {
+            border: 1px solid #333;
+            color: #666;
+        }
+        .month-btn.active {
+            border-color: #10b981;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .checkbox-wrapper input:checked + div {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+        
+        .checkbox-wrapper input:checked + div::after {
+            content: '✓';
+            color: black;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .blink {
+            animation: blinker 2s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        /* Detail Text Styling */
+        .protocol-header { color: #10b981; font-weight: bold; font-size: 0.9em; display: block; margin-bottom: 4px; margin-top: 8px; }
+        .protocol-detail { color: #a3a3a3; font-size: 0.85em; line-height: 1.4; display: block; }
+        .protocol-cue { color: #60a5fa; font-size: 0.75em; font-style: italic; display: block; margin-top: 4px; border-left: 2px solid #60a5fa; padding-left: 6px; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <!-- HEADER & STATUS -->
+    <header class="max-w-7xl mx-auto mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="tactical-border p-6 bg-gray-900/50">
+            <div class="flex justify-between items-start mb-2">
+                <h1 class="text-2xl md:text-3xl font-bold text-emerald-500 tracking-tighter">
+                    <i class="fas fa-shield-alt mr-2"></i>OP: BEAST TAMER
+                </h1>
+                <span class="text-xs border border-red-500 text-red-500 px-2 py-1 rounded animate-pulse">
+                    CLASSIFIED // V3.0
+                </span>
+            </div>
+            <p class="text-gray-400 text-sm mb-4">OPERATIVE: SENTINEL (TYPE 3) | AGE: 44</p>
+            
+            <div class="grid grid-cols-2 gap-4 text-xs">
+                <div>
+                    <span class="text-gray-500 block">GENOTYPE</span>
+                    <span class="text-emerald-400">ACTN3(RR) / COL5A1</span>
+                </div>
+                <div>
+                    <span class="text-gray-500 block">INFLAMMATION</span>
+                    <span class="text-yellow-500">IL-6 HIGH RISK</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tactical-border p-6 bg-gray-900/50 flex flex-col justify-center">
+            <div class="text-gray-500 text-xs mb-1">MISSION CLOCK (OCT 2, 2026)</div>
+            <div class="text-4xl font-bold text-white tracking-widest" id="countdown">
+                CALCULATING...
+            </div>
+            <div class="mt-4 w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                <div class="bg-emerald-500 h-full" style="width: 10%;" id="progress-bar"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <span>START: JAN 25</span>
+                <span>TARGET: OCT 02</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- OPERATIONAL RULES -->
+    <div class="max-w-7xl mx-auto mb-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div class="border border-gray-800 p-4 bg-red-900/10 text-red-200">
+            <div class="font-bold mb-2"><i class="fas fa-brain mr-2"></i>ANTI-PSYCHE RULE</div>
+            <p class="text-xs opacity-70">COMT Met/Met Constraint. NO heavy metal. NO ammonia. NO "psyching up." Calm focus only.</p>
+        </div>
+        <div class="border border-gray-800 p-4 bg-blue-900/10 text-blue-200">
+            <div class="font-bold mb-2"><i class="fas fa-bone mr-2"></i>MENISCUS MANDATE</div>
+            <p class="text-xs opacity-70">COL5A1 Constraint. Heavy Pistols to BOX ONLY until Phase 4. Vertical Tibia cue is mandatory.</p>
+        </div>
+        <div class="border border-gray-800 p-4 bg-yellow-900/10 text-yellow-200">
+            <div class="font-bold mb-2"><i class="fas fa-biohazard mr-2"></i>INFLAMMATION BUFFER</div>
+            <p class="text-xs opacity-70">IL-6 Constraint. 72hr gap between Saturday "War" and Heavy Lifting required.</p>
+        </div>
+    </div>
+
+    <!-- PHASE SELECTOR -->
+    <div class="max-w-7xl mx-auto mb-2 overflow-x-auto">
+        <div class="flex space-x-2 min-w-max">
+            <button onclick="setPhase(1)" id="btn-p1" class="phase-btn flex-1 border border-gray-700 py-3 px-6 text-sm font-bold hover:bg-emerald-900/30 transition-colors uppercase">
+                Phase 1: Integrity<br><span class="text-xs font-normal opacity-70">Feb - Mar</span>
+            </button>
+            <button onclick="setPhase(2)" id="btn-p2" class="phase-btn flex-1 border border-gray-700 py-3 px-6 text-sm font-bold hover:bg-emerald-900/30 transition-colors uppercase">
+                Phase 2: Density<br><span class="text-xs font-normal opacity-70">Apr - Jun</span>
+            </button>
+            <button onclick="setPhase(3)" id="btn-p3" class="phase-btn flex-1 border border-gray-700 py-3 px-6 text-sm font-bold hover:bg-emerald-900/30 transition-colors uppercase">
+                Phase 3: Intensity<br><span class="text-xs font-normal opacity-70">Jul - Sep</span>
+            </button>
+            <button onclick="setPhase(4)" id="btn-p4" class="phase-btn flex-1 border border-gray-700 py-3 px-6 text-sm font-bold hover:bg-emerald-900/30 transition-colors uppercase">
+                Phase 4: Taper<br><span class="text-xs font-normal opacity-70">Oct</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- MONTH SELECTOR (DYNAMIC) -->
+    <div class="max-w-7xl mx-auto mb-6">
+        <div id="month-container" class="flex space-x-2 p-2 border-l border-r border-b border-gray-800 bg-gray-900/30">
+            <!-- Injected by JS -->
+        </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        <!-- LEFT: WEEKLY SCHEDULE -->
+        <div class="lg:col-span-3 space-y-4">
+            <div class="tactical-border p-4 bg-gray-900/30">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-2">
+                    <h2 class="text-emerald-500 font-bold">
+                        <span class="blink">●</span> WEEKLY TACTICAL GRID
+                    </h2>
+                    <span id="current-month-label" class="text-xs font-bold text-gray-500 uppercase">AWAITING SELECTION</span>
+                </div>
+                
+                <div class="grid gap-4">
+                    <!-- MON -->
+                    <div class="grid grid-cols-12 gap-4 items-center bg-gray-800/40 p-4 rounded border-l-4 border-blue-500">
+                        <div class="col-span-2 md:col-span-1 font-bold text-blue-400">MON</div>
+                        <div class="col-span-10 md:col-span-4 font-bold">THE WRENCH & FLUSH</div>
+                        <div class="col-span-12 md:col-span-7 text-sm text-white">
+                            <span class="protocol-header">PART A: THE WRENCH (TECHNICAL REPAIR)</span>
+                            <span class="protocol-detail">1. <strong>TGU or Windmill</strong>: 10 mins continuous flow.</span>
+                            <span class="protocol-detail">   • <em>Shoulder Rehab:</em> Use Windmill if stability is low.</span>
+                            <span class="protocol-detail">2. <strong>Prying Goblet Squat</strong>: 3 sets x 5 reps (Hold bottom 10s).</span>
+                            <span class="protocol-detail">3. <strong>KB Halos</strong>: 3 sets x 10L/10R (12kg or 16kg).</span>
+                            <span class="protocol-detail">4. <strong>90/90 Shin Box</strong>: 2 mins continuous flow.</span>
+                            
+                            <span class="protocol-header">PART B: THE FLUSH (SYSTEMIC CLEARANCE)</span>
+                            <span class="protocol-detail">1. <strong>Ruck (Zone 1)</strong>: 20-30 mins. Nasal Breathing.</span>
+                            <span class="protocol-cue">GOAL: Lymphatic drainage. Do not break a sweat. Clear the IL-6.</span>
+                        </div>
+                    </div>
+
+                    <!-- TUE (DYNAMIC) -->
+                    <div class="grid grid-cols-12 gap-4 items-center bg-gray-800/40 p-4 rounded border-l-4 border-emerald-500">
+                        <div class="col-span-2 md:col-span-1 font-bold text-emerald-400">TUE</div>
+                        <div class="col-span-10 md:col-span-4 font-bold">HEAVY MISSION</div>
+                        <div class="col-span-12 md:col-span-7 text-sm text-white" id="tue-protocol">
+                            <!-- JS INJECTS CONTENT HERE -->
+                        </div>
+                    </div>
+
+                    <!-- WED (UPDATED from Image Analysis) -->
+                    <div class="grid grid-cols-12 gap-4 items-center bg-gray-800/40 p-4 rounded border-l-4 border-purple-500">
+                        <div class="col-span-2 md:col-span-1 font-bold text-purple-400">WED</div>
+                        <div class="col-span-10 md:col-span-4 font-bold">WEDNESDAY WRENCH</div>
+                        <div class="col-span-12 md:col-span-7 text-sm text-white">
+                            <span class="protocol-header">HYBRID BULLETPROOFING (Paul Chek Style)</span>
+                            <span class="protocol-detail">1. <strong>Suitcase Carries</strong>: 3 x 40m/side @ 32kg+.</span>
+                            <span class="protocol-detail">   • Targets QL and Grip without spinal load.</span>
+                            <span class="protocol-detail">2. <strong>KB Windmill</strong>: 3 x 5 reps/side.</span>
+                            <span class="protocol-detail">   • Targets 'Serape Effect' & Shoulder Stability.</span>
+                            <span class="protocol-detail">3. <strong>Neck Flexion/Ext</strong>: 3 x 30s Hold. (BJJ Armor).</span>
+                            <span class="protocol-detail">4. <strong>Shinbox Flow</strong>: 3 mins continuous.</span>
+                            <span class="protocol-cue">NOTE: If shoulder is good, swap Windmill for Dbl KB Front Squat.</span>
+                        </div>
+                    </div>
+
+                    <!-- THU (DYNAMIC) -->
+                    <div class="grid grid-cols-12 gap-4 items-center bg-gray-800/40 p-4 rounded border-l-4 border-yellow-500">
+                        <div class="col-span-2 md:col-span-1 font-bold text-yellow-400">THU</div>
+                        <div class="col-span-10 md:col-span-4 font-bold">ALACTIC ENGINE</div>
+                        <div class="col-span-12 md:col-span-7 text-sm text-white" id="thu-protocol">
+                            <!-- JS INJECTS CONTENT HERE -->
+                        </div>
+                    </div>
+
+                    <!-- FRI -->
+                    <div class="grid grid-cols-12 gap-4 items-center bg-gray-800/20 p-3 rounded border-l-4 border-gray-500">
+                        <div class="col-span-2 md:col-span-1 font-bold text-gray-400">FRI</div>
+                        <div class="col-span-10 md:col-span-4 font-bold">DEEP REST</div>
+                        <div class="col-span-12 md:col-span-7 text-xs text-gray-400">
+                            <i class="fas fa-bed mr-1"></i> Non-negotiable. Vagus Nerve work. CNS Unplug.
+                        </div>
+                    </div>
+
+                    <!-- SAT -->
+                    <div class="grid grid-cols-12 gap-4 items-center bg-red-900/10 p-3 rounded border-l-4 border-red-600">
+                        <div class="col-span-2 md:col-span-1 font-bold text-red-500">SAT</div>
+                        <div class="col-span-10 md:col-span-4 font-bold">WAR DAY</div>
+                        <div class="col-span-12 md:col-span-7 text-xs text-gray-400">
+                            <i class="fas fa-fist-raised mr-1"></i> Hard BJJ Rolls. High Arousal Application.
+                        </div>
+                    </div>
+
+                    <!-- SUN (Added) -->
+                    <div class="grid grid-cols-12 gap-4 items-center bg-orange-900/10 p-3 rounded border-l-4 border-orange-500">
+                        <div class="col-span-2 md:col-span-1 font-bold text-orange-500">SUN</div>
+                        <div class="col-span-10 md:col-span-4 font-bold">ZONE 2 RUCK</div>
+                        <div class="col-span-12 md:col-span-7 text-xs text-gray-400">
+                            <i class="fas fa-mountain mr-1"></i> Vagal Reset Post-BJJ. HR < 120bpm. Nature Exposure.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: BIO-HACKS -->
+        <div class="lg:col-span-1 space-y-6">
+            
+            <!-- Supplements -->
+            <div class="tactical-border p-4 bg-gray-900/30">
+                <h3 class="text-xs font-bold text-gray-500 mb-4 uppercase tracking-wider">Daily Chemical Logistics</h3>
+                <div class="space-y-3">
+                    <label class="checkbox-wrapper flex items-center cursor-pointer group">
+                        <input type="checkbox" class="hidden" id="check-boron">
+                        <div class="w-5 h-5 border border-gray-600 rounded mr-3 transition-colors"></div>
+                        <div>
+                            <span class="block text-sm font-bold text-gray-200">Boron (10mg)</span>
+                            <span class="block text-[10px] text-gray-500">Unbind SHBG / Free Test</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-wrapper flex items-center cursor-pointer group">
+                        <input type="checkbox" class="hidden" id="check-mag">
+                        <div class="w-5 h-5 border border-gray-600 rounded mr-3 transition-colors"></div>
+                        <div>
+                            <span class="block text-sm font-bold text-gray-200">Magnesium Glycinate</span>
+                            <span class="block text-[10px] text-gray-500">Post-workout / Muscle Tone</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-wrapper flex items-center cursor-pointer group">
+                        <input type="checkbox" class="hidden" id="check-theanine">
+                        <div class="w-5 h-5 border border-gray-600 rounded mr-3 transition-colors"></div>
+                        <div>
+                            <span class="block text-sm font-bold text-gray-200">L-Theanine</span>
+                            <span class="block text-[10px] text-gray-500">Alpha Wave / Relax (No Cortisol Spike)</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Recovery -->
+            <div class="tactical-border p-4 bg-gray-900/30">
+                <h3 class="text-xs font-bold text-gray-500 mb-4 uppercase tracking-wider">Neuro-Recovery</h3>
+                <div class="space-y-3">
+                    <label class="checkbox-wrapper flex items-center cursor-pointer group">
+                        <input type="checkbox" class="hidden" id="check-breath">
+                        <div class="w-5 h-5 border border-gray-600 rounded mr-3 transition-colors"></div>
+                        <div>
+                            <span class="block text-sm font-bold text-gray-200">4-7-8 Breathing & Theta Audio</span>
+                            <span class="block text-[10px] text-gray-500">Post-Workout Reset</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-wrapper flex items-center cursor-pointer group">
+                        <input type="checkbox" class="hidden" id="check-nsdr">
+                        <div class="w-5 h-5 border border-gray-600 rounded mr-3 transition-colors"></div>
+                        <div>
+                            <span class="block text-sm font-bold text-gray-200">Yoga Nidra / NSDR</span>
+                            <span class="block text-[10px] text-gray-500">Deep Rest / Non-Sleep Reset</span>
+                        </div>
+                    </label>
+                </div>
+                <button onclick="resetChecks()" class="mt-6 w-full py-2 bg-gray-800 text-xs text-gray-500 hover:text-white transition-colors">RESET DAILY LOG</button>
+            </div>
+            
+            <!-- Focus Note -->
+            <div class="p-4 bg-emerald-900/10 border border-emerald-900 text-emerald-400 text-xs leading-relaxed">
+                <strong class="block mb-2 text-emerald-500">MONTHLY FOCUS:</strong>
+                <span id="focus-text">Loading...</span>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        // DATA: The Tactical Protocols
+        const protocols = {
+            1: {
+                title: "STRUCTURAL INTEGRITY",
+                months: {
+                    FEB: {
+                        focus: "Depth Charge & Tendon Hardening.",
+                        tue: `
+                            <span class="protocol-header">BLOCK A: PRESS (32kg) & PULL (Wtd)</span>
+                            <span class="protocol-detail">1. <strong>LADDER 1</strong>: 1 Rep (L/R) -> 2 Reps (L/R) -> 3 Reps (L/R)</span>
+                            <span class="protocol-detail">   • Rest: Park bell between rungs. Long rest after ladder.</span>
+                            <span class="protocol-detail">   • Repeat for 3-5 Ladders.</span>
+                            <span class="protocol-cue">FILLER: Shin Box / 90-90 Breathing.</span>
+                            
+                            <span class="protocol-header">BLOCK B: PISTOL (24kg)</span>
+                            <span class="protocol-detail">1. <strong>High Box</strong>: 24-inch.</span>
+                            <span class="protocol-detail">   • Volume: 5 sets x 3 reps (Slow Eccentric).</span>
+                            <span class="protocol-cue">CUE: Vertical Tibia.</span>
+                        `,
+                        thu: `
+                            <span class="protocol-header">GRIP & TENSION</span>
+                            <span class="protocol-detail">1. <strong>Bottoms-Up Cleans</strong> (24kg)</span>
+                            <span class="protocol-detail">   • Volume: 5x5 ramping to 8x5</span>
+                            <span class="protocol-detail">   • Focus: Crushing Grip (Irradiation)</span>
+                            <span class="protocol-detail">2. <strong>Towel Swings</strong></span>
+                            <span class="protocol-detail">   • Volume: 10 sets x 5 reps (EMOM)</span>
+                            <span class="protocol-cue">FILLER: Wrist Rocks / Decompression.</span>
+                        `
+                    },
+                    MAR: {
+                        focus: "The Hole. Depth Acquisition.",
+                        tue: `
+                            <span class="protocol-header">BLOCK A: PRESS (36kg) & PULL (Wtd)</span>
+                            <span class="protocol-detail">1. <strong>LADDERS</strong>: 1(L/R) -> 2(L/R) -> 3(L/R).</span>
+                            <span class="protocol-detail">   • Volume: 5 Total Ladders.</span>
+                            
+                            <span class="protocol-header">BLOCK B: PISTOL (24kg)</span>
+                            <span class="protocol-detail">1. <strong>Mid Box</strong>: 18-inch (Lower).</span>
+                            <span class="protocol-detail">   • Volume: 5 sets x 3 reps.</span>
+                            <span class="protocol-cue">FILLER: Halo to Chop.</span>
+                        `,
+                        thu: `
+                            <span class="protocol-header">SKILL ACQUISITION</span>
+                            <span class="protocol-detail">1. <strong>Snatch Intro</strong> (24kg)</span>
+                            <span class="protocol-detail">   • Volume: 5 sets x 5 reps (Light)</span>
+                            <span class="protocol-detail">   • Focus: Taming the arc</span>
+                            <span class="protocol-detail">2. <strong>Swing Intervals</strong></span>
+                            <span class="protocol-detail">   • Volume: EMOM 10m (10 reps)</span>
+                            <span class="protocol-cue">FILLER: Tactical Frog.</span>
+                        `
+                    }
+                }
+            },
+            2: {
+                title: "DENSITY & VOLUME",
+                months: {
+                    APR: {
+                        focus: "Neural Density I: Cluster Initialization.",
+                        tue: `
+                            <span class="protocol-header">BLOCK A: CLUSTERS (1.1.1)</span>
+                            <span class="protocol-detail">1. <strong>Press/Pull</strong> (40kg).</span>
+                            <span class="protocol-detail">   • 1 Rep (L/R), Park 15s, 1 Rep (L/R), Park 15s, 1 Rep (L/R).</span>
+                            <span class="protocol-detail">   • Volume: 3 Sets -> 5 Sets.</span>
+                            
+                            <span class="protocol-header">BLOCK B: PISTOL (32kg)</span>
+                            <span class="protocol-detail">1. <strong>Mid Box</strong>: 18-inch.</span>
+                            <span class="protocol-detail">   • Structure: Cluster (1.1.1) x 3 Sets.</span>
+                        `,
+                        thu: `
+                            <span class="protocol-header">OVERSPEED ECCENTRIC</span>
+                            <span class="protocol-detail">1. <strong>Power Swings</strong> (32kg)</span>
+                            <span class="protocol-detail">   • Volume: 10 sets x 5 reps -> 15 sets x 5 reps</span>
+                            <span class="protocol-detail">   • Tech: "Shadow Swing" (Pull bell down)</span>
+                            <span class="protocol-detail">2. <strong>Snatch Skill</strong> (24kg)</span>
+                            <span class="protocol-detail">   • Volume: 5 sets x 5L/5R (Easy pace)</span>
+                            <span class="protocol-cue">FILLER: QL Straddle.</span>
+                        `
+                    },
+                    MAY: {
+                        focus: "Neural Density II: Volume Accumulation.",
+                        tue: `
+                            <span class="protocol-header">BLOCK A: EXTENDED CLUSTERS (1.1.1.1)</span>
+                            <span class="protocol-detail">1. <strong>Press/Pull</strong> (40kg).</span>
+                            <span class="protocol-detail">   • 4 singles with 15s rest between.</span>
+                            <span class="protocol-detail">   • Volume: 3 Sets -> 5 Sets.</span>
+                            
+                            <span class="protocol-header">BLOCK B: PISTOL (36kg)</span>
+                            <span class="protocol-detail">1. <strong>Mid-Low Box</strong>: 16-inch.</span>
+                            <span class="protocol-detail">   • Structure: Cluster (1.1.1.1) x 3 Sets.</span>
+                        `,
+                        thu: `
+                            <span class="protocol-header">HEAVY ENGINE</span>
+                            <span class="protocol-detail">1. <strong>Heavy Swings</strong> (40kg)</span>
+                            <span class="protocol-detail">   • Volume: 10 sets x 5 reps (Dead Stop)</span>
+                            <span class="protocol-detail">   • Focus: Max Power Output per rep</span>
+                            <span class="protocol-detail">2. <strong>Snatch Density</strong> (24kg)</span>
+                            <span class="protocol-detail">   • Volume: 10 sets x 6L/6R</span>
+                            <span class="protocol-cue">FILLER: Neck Nods (Vagal).</span>
+                        `
+                    },
+                    JUN: {
+                        focus: "The Peak: Systemic Red Line.",
+                        tue: `
+                            <span class="protocol-header">BLOCK A: BIG CLUSTER (1.1.1.1.1.1)</span>
+                            <span class="protocol-detail">1. <strong>Press/Pull</strong> (44kg).</span>
+                            <span class="protocol-detail">   • 6 singles, 15s rest. (The Red Line).</span>
+                            <span class="protocol-detail">   • Volume: 3 Sets ONLY.</span>
+                            
+                            <span class="protocol-header">BLOCK B: PISTOL (40kg)</span>
+                            <span class="protocol-detail">1. <strong>Low Box/Parallel</strong>: 14-inch.</span>
+                            <span class="protocol-detail">   • Structure: Cluster (1.1.1.1) x 3 Sets.</span>
+                            <span class="protocol-cue">WARNING: Digital Blackout Mandatory. High CNS Cost.</span>
+                        `,
+                        thu: `
+                            <span class="protocol-header">VOLUME TOLERANCE</span>
+                            <span class="protocol-detail">1. <strong>Swings</strong> (40kg)</span>
+                            <span class="protocol-detail">   • Volume: 10 sets x 10 reps (100 total)</span>
+                            <span class="protocol-detail">2. <strong>Snatch</strong> (24kg)</span>
+                            <span class="protocol-detail">   • Volume: 5 sets x 10L/10R</span>
+                            <span class="protocol-cue">FILLER: Passive Hang.</span>
+                        `
+                    }
+                }
+            },
+            3: {
+                title: "INTENSIFICATION",
+                months: {
+                    JUL: {
+                        focus: "Heavy Waves. Phosphagen System.",
+                        tue: `
+                            <span class="protocol-header">BLOCK A: WAVE LOADING (3, 2, 1)</span>
+                            <span class="protocol-detail">1. <strong>Press/Pull</strong> (44kg).</span>
+                            <span class="protocol-detail">   • Wave 1 (3 reps), Wave 2 (2 reps), Wave 3 (1 rep).</span>
+                            <span class="protocol-detail">   • Rest: 5-8 mins between waves. No Clusters.</span>
+                            
+                            <span class="protocol-header">BLOCK B: PISTOL (44kg)</span>
+                            <span class="protocol-detail">1. <strong>Low Box</strong>: 14-inch.</span>
+                            <span class="protocol-detail">   • Volume: 5 sets x 2 reps.</span>
+                        `,
+                        thu: `
+                            <span class="protocol-header">A+A PROTOCOL (ALACTIC+AEROBIC)</span>
+                            <span class="protocol-detail">1. <strong>Snatch Intervals</strong> (28kg)</span>
+                            <span class="protocol-detail">   • Ratio: 15s Work : 90s Rest</span>
+                            <span class="protocol-detail">   • Volume: 5-10 Rounds</span>
+                            <span class="protocol-detail">   • Goal: Explosive power, zero burn.</span>
+                            <span class="protocol-cue">FILLER: Nasal Breathing Walk.</span>
+                        `
+                    },
+                    AUG: {
+                        focus: "Singles & Power.",
+                        tue: `
+                            <span class="protocol-header">BLOCK A: HEAVY SINGLES</span>
+                            <span class="protocol-detail">1. <strong>Press/Pull</strong> (46kg).</span>
+                            <span class="protocol-detail">   • Volume: 5 sets -> 7 sets x 1 rep.</span>
+                            <span class="protocol-detail">   • Rest: Full Recovery (5-10m).</span>
+                            
+                            <span class="protocol-header">BLOCK B: PISTOL (44kg)</span>
+                            <span class="protocol-detail">1. <strong>Safety Box/Full Depth</strong>: 12-inch.</span>
+                            <span class="protocol-detail">   • Volume: 5 sets x 1 rep.</span>
+                        `,
+                        thu: `
+                            <span class="protocol-header">SNATCH CAPACITY</span>
+                            <span class="protocol-detail">1. <strong>Snatch Intervals</strong> (24kg)</span>
+                            <span class="protocol-detail">   • Ratio: 15s Work : 45s Rest</span>
+                            <span class="protocol-detail">   • Volume: 12-18 Rounds</span>
+                            <span class="protocol-detail">   • Focus: Rhythm and relaxation.</span>
+                            <span class="protocol-cue">FILLER: Fast & Loose.</span>
+                        `
+                    },
+                    SEP: {
+                        focus: "The Beast Rehearsal.",
+                        tue: `
+                            <span class="protocol-header">BLOCK A: TEST WEIGHTS (48KG)</span>
+                            <span class="protocol-detail">1. <strong>The Beast Press/Pull</strong> (48kg).</span>
+                            <span class="protocol-detail">   • Volume: 3 sets x 1 rep.</span>
+                            
+                            <span class="protocol-header">BLOCK B: THE BEAST PISTOL (48KG)</span>
+                            <span class="protocol-detail">1. <strong>Safety Box</strong>: 12-inch.</span>
+                            <span class="protocol-detail">   • Volume: 3 sets x 1 rep.</span>
+                            <span class="protocol-cue">NOTE: If reps are clean, STOP. Do not grind.</span>
+                        `,
+                        thu: `
+                            <span class="protocol-header">CADENCE TEST</span>
+                            <span class="protocol-detail">1. <strong>Snatch Test Rehearsal</strong> (24kg)</span>
+                            <span class="protocol-detail">   • Protocol: 20 Rounds (15s on / 15s off)</span>
+                            <span class="protocol-detail">   • Target: 5 reps per 15s interval (=100 reps)</span>
+                            <span class="protocol-detail">   • Week 4: Pre-Taper Flush (Walking only)</span>
+                            <span class="protocol-cue">FILLER: Shake out.</span>
+                        `
+                    }
+                }
+            },
+            4: {
+                title: "TAPER & PEAK",
+                months: {
+                    OCT: {
+                        focus: "14-Day COMT Taper. Unmask Fitness.",
+                        tue: `
+                            <span class="protocol-header">THE CUT & PRIME</span>
+                            <span class="protocol-detail"><strong>Week 1 (50% Load):</strong></span>
+                            <span class="protocol-detail">   • 32kg Press/Pull/Pistol. 3x3 reps. Easy.</span>
+                            <span class="protocol-detail"><strong>Week 2 (Neural Prime):</strong></span>
+                            <span class="protocol-detail">   • Floor Press (24kg). 3x5 explosive.</span>
+                            <span class="protocol-detail">   • No lower body load.</span>
+                            <span class="protocol-cue">FILLER: Walking only.</span>
+                        `,
+                        thu: `
+                            <span class="protocol-header">MOBILITY & FLUSH</span>
+                            <span class="protocol-detail"><strong>Week 1:</strong></span>
+                            <span class="protocol-detail">   • 24kg Swings. 5 sets x 10 reps.</span>
+                            <span class="protocol-detail"><strong>Week 2:</strong></span>
+                            <span class="protocol-detail">   • Walking & Visualisation ONLY.</span>
+                            <span class="protocol-cue">FILLER: Walking only.</span>
+                        `
+                    }
+                }
+            }
+        };
+
+        let currentPhase = 1;
+        let currentMonthKey = null;
+
+        // INIT
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            startCountdown();
+        });
+
+        function setPhase(phaseNum) {
+            currentPhase = phaseNum;
+            
+            // UI Update for Phase Buttons
+            document.querySelectorAll('.phase-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-p${phaseNum}`).classList.add('active');
+
+            // Render Months for this Phase
+            const phaseData = protocols[phaseNum];
+            const monthContainer = document.getElementById('month-container');
+            monthContainer.innerHTML = ''; // Clear prev
+
+            const months = Object.keys(phaseData.months);
+            
+            // If we just switched phases, default to first month
+            if (!months.includes(currentMonthKey)) {
+                currentMonthKey = months[0];
+            }
+
+            months.forEach(m => {
+                const btn = document.createElement('button');
+                btn.className = `month-btn px-4 py-1 text-xs font-bold rounded hover:bg-emerald-900/20 transition-colors ${m === currentMonthKey ? 'active' : ''}`;
+                btn.innerText = m;
+                btn.onclick = () => setMonth(m);
+                monthContainer.appendChild(btn);
+            });
+
+            // Trigger update
+            updateDashboard();
+
+            // Save
+            localStorage.setItem('sentinel_phase', phaseNum);
+        }
+
+        function setMonth(monthKey) {
+            currentMonthKey = monthKey;
+            
+            // Update Active State of Month Buttons
+            document.querySelectorAll('.month-btn').forEach(btn => {
+                if(btn.innerText === monthKey) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            updateDashboard();
+            localStorage.setItem('sentinel_month', monthKey);
+        }
+
+        function updateDashboard() {
+            const data = protocols[currentPhase].months[currentMonthKey];
+            if(!data) return;
+
+            document.getElementById('current-month-label').innerText = `${currentMonthKey} // ${protocols[currentPhase].title}`;
+            document.getElementById('tue-protocol').innerHTML = data.tue;
+            document.getElementById('thu-protocol').innerHTML = data.thu;
+            document.getElementById('focus-text').innerText = data.focus;
+        }
+
+        function loadState() {
+            // Load Phase
+            const savedPhase = localStorage.getItem('sentinel_phase') || 1;
+            const savedMonth = localStorage.getItem('sentinel_month');
+            
+            currentMonthKey = savedMonth; // Will be validated in setPhase
+            setPhase(parseInt(savedPhase));
+
+            // Load Checkboxes
+            const checks = ['check-boron', 'check-mag', 'check-theanine', 'check-breath', 'check-nsdr'];
+            checks.forEach(id => {
+                const isChecked = localStorage.getItem(id) === 'true';
+                document.getElementById(id).checked = isChecked;
+                // Add listener to save on click
+                document.getElementById(id).addEventListener('change', (e) => {
+                    localStorage.setItem(id, e.target.checked);
+                });
+            });
+        }
+
+        function resetChecks() {
+            const checks = ['check-boron', 'check-mag', 'check-theanine', 'check-breath', 'check-nsdr'];
+            checks.forEach(id => {
+                document.getElementById(id).checked = false;
+                localStorage.setItem(id, 'false');
+            });
+        }
+
+        function startCountdown() {
+            const target = new Date("October 2, 2026 00:00:00").getTime();
+            const start = new Date("January 25, 2026 00:00:00").getTime();
+            const totalDuration = target - start;
+
+            setInterval(() => {
+                const now = new Date().getTime();
+                const distance = target - now;
+
+                if (distance < 0) {
+                    document.getElementById("countdown").innerHTML = "MISSION ACTIVE";
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+                document.getElementById("countdown").innerHTML = `T-${days}d ${hours}h`;
+                
+                // Progress Bar
+                const elapsed = now - start;
+                const percentage = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+                document.getElementById("progress-bar").style.width = percentage + "%";
+
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
